@@ -1,3 +1,7 @@
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -6,12 +10,14 @@ import java.util.Scanner;
 public class Heuristique {
     private static Scanner input = new Scanner(System.in);
 
+    private static String programName;
     private static int nbC=0, nbZ=0;
     private static int[] dureeVie;
     private static List<int[]> zones = new ArrayList<>();
 
     private static void format(String file) {
         List<Object> ans = Reader.read(file);
+        programName = file;
         nbC = (int) ans.get(0);
         nbZ = (int) ans.get(1);
         dureeVie = (int[]) ans.get(2);
@@ -46,6 +52,48 @@ public class Heuristique {
         getArgs(args);
         print();
         List<ArrayList<Integer>> combiElem = getCombiElem();
+        System.out.println(combiElem);
+        writeLpFile(combiElem);
+    }
+
+    private static void writeLpFile(List<ArrayList<Integer>> combiElem) {
+        File lpFile = new File("lpSources/"+programName+".lp");
+        lpFile.setWritable(true);
+        try {
+            PrintWriter writer = new PrintWriter(lpFile);
+            StringBuilder sb = new StringBuilder();
+            sb.append("maximize ");
+            for (int i = 0; i < combiElem.size(); i++) {
+                sb.append("t"+i);
+                if (i!=combiElem.size()-1){
+                    sb.append(" + ");
+                }
+            }
+            writer.println(sb.toString());
+            writer.println("subject to");
+            for (int i = 0; i < nbC; i++) {
+                sb = new StringBuilder();
+                for (int j=0; j<combiElem.size(); j++){
+                    ArrayList<Integer> combi = combiElem.get(j);
+                    if (combi.contains(i)){
+                        sb.append("t"+j+" + ");
+                    }
+                }
+                sb.deleteCharAt(sb.length()-1);
+                sb.deleteCharAt(sb.length()-1);
+                sb.append("<= "+dureeVie[i]);
+                writer.println(sb.toString());
+            }
+            writer.println("end");
+            writer.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        try {
+            Process p = Runtime.getRuntime().exec("glpsol --cpxlp lpSources/"+programName+".lp -o lpOutput/"+programName);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private static List<ArrayList<Integer>> getCombiElem(){
@@ -141,7 +189,6 @@ public class Heuristique {
                 }
             }
         }
-
         return capteursParZone;
     }
 }
