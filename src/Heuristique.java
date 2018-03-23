@@ -1,7 +1,4 @@
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -79,9 +76,11 @@ public class Heuristique {
                         sb.append("t"+j+" + ");
                     }
                 }
-                sb.deleteCharAt(sb.length()-1);
-                sb.deleteCharAt(sb.length()-1);
-                sb.append("<= "+dureeVie[i]);
+                if (sb.length()>2){
+                    sb.deleteCharAt(sb.length()-1);
+                    sb.deleteCharAt(sb.length()-1);
+                    sb.append("<= "+dureeVie[i]);
+                }
                 writer.println(sb.toString());
             }
             writer.println("end");
@@ -91,6 +90,7 @@ public class Heuristique {
         }
         try {
             Process p = Runtime.getRuntime().exec("glpsol --cpxlp lpSources/"+programName+".lp -o lpOutput/"+programName);
+//            Reader reader = new FileReader("lpOutput/"+programName);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -103,7 +103,7 @@ public class Heuristique {
         ArrayList<ArrayList<Integer>> allConfigs = new ArrayList<>();
 
         //nombre d'iteration limite
-        for(int iter = 0; iter < nbC*nbC*2; iter++){
+        for(int iter = 0; iter < nbC+nbZ; iter++){
 
             ArrayList<Integer> config = new ArrayList<>();
             //
