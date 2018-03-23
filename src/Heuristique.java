@@ -103,7 +103,7 @@ public class Heuristique {
         ArrayList<ArrayList<Integer>> allConfigs = new ArrayList<>();
 
         //nombre d'iteration limite
-        for(int iter = 0; iter < nbC+nbZ; iter++){
+        for(int iter = 0; iter < nbC*nbC*2; iter++){
 
             ArrayList<Integer> config = new ArrayList<>();
             //
